@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-05-06T08:00:00Z",
+  "source": "Zanime Fixed Asset Intel Gatherer",
+  "market_signals": [
+    {
+      "signal_type": "competitor_movement",
+      "competitor_name": "AcmeCorp AI",
+      "event": "AcmeCorp raised their subscription pricing by 40% globally.",
+      "sentiment": "negative (customer backlash on Twitter/X)"
+    },
+    {
+      "signal_type": "search_trend",
+      "keyword": "open source alternatives to AcmeCorp",
+      "volume_spike": "+350% in last 24 hours"
+    }
+  ]
+}
