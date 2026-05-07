@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Strategic_Directive",
+  "description": "The strict JSON output expected from the CDO/CEO Agent.",
+  "type": "object",
+  "properties": {
+    "priority": {
+      "type": "string",
+      "enum": ["LOW", "MEDIUM", "HIGH", "URGENT", "DROP"]
+    },
+    "objective": {
+      "type": "string",
+      "description": "The clear business objective derived from the intel."
+    },
+    "rationale": {
+      "type": "string",
+      "description": "Empirical reasoning for this directive."
+    },
+    "target_divisions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["CPO", "CMO", "CTO", "COO", "CRO"]
+      },
+      "minItems": 1
+    },
+    "division_commands": {
+      "type": "object",
+      "description": "Specific commands passed to the target divisions.",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  },
+  "required": ["priority", "objective", "rationale", "target_divisions", "division_commands"]
+}
