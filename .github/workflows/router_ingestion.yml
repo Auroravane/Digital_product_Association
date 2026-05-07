@@ -1,0 +1,56 @@
+name: Executive Ingestion Router (CEO ➔ CPO)
+
+on:
+  repository_dispatch:
+    types: [agent_1_ping]
+  workflow_dispatch:
+  push:
+    paths:
+      - 'intel_drops/**.json'
+
+jobs:
+  evaluate_intel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: pip install requests jsonschema
+
+      - name: Mask Secrets
+        run: |
+          echo "::add-mask::${{ secrets.NVIDIA_API_KEY }}"
+          echo "::add-mask::${{ secrets.GH_PAT }}"
+
+      - name: Invoke CEO Managing Agent
+        env:
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }} # Uses Meta Llama 3.3 70B
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          echo "Executing Connection Agent Wrapper..."
+          # Python script invokes the CEO Agent with the Agent 1 report from GitHub
+          python scripts/connection_agents/ceo_evaluator.py
+
+      - name: Validate CEO Output Schema
+        run: |
+          echo "Validating Strategic Directive against schema..."
+          # Enforces the 5-Gate Validation JSON schema
+          python scripts/connection_agents/validate_schema.py --schema specs/schemas/Strategic_Directive_Schema.json --target specs/directives/latest_directive.json
+
+      - name: Auto-Commit Directive
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "autobot(ceo): Processed Agent 1 report and issued strategic directive"
+          file_pattern: 'specs/directives/*.json'
+
+      - name: Trigger CPO Pipeline
+        if: success()
+        run: |
+          echo "CEO evaluation successful. The CPO workflow will trigger automatically via file path listener on specs/directives/."
