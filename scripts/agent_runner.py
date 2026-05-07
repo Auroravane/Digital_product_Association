@@ -4,6 +4,10 @@ import json
 import requests
 from typing import Dict, Any
 
+class SecurityException(Exception):
+    """Raised when an agent attempts to leak a secret."""
+    pass
+
 class AgentRunner:
     """The bridge between .md System Prompts and LLM API Endpoints."""
     
@@ -21,7 +25,6 @@ class AgentRunner:
         if match:
             return match.group(1).strip()
         else:
-            # Fallback to the whole file if tags are missing (though our Grandmaster spec includes them)
             return content
 
     def call_nvidia_nim(self, payload: str, model="meta/llama-3.3-70b-instruct") -> str:
@@ -58,7 +61,6 @@ class AgentRunner:
 
     def _check_for_secret_leak(self, text: str):
         """Scans output for patterns that look like sensitive keys."""
-        # Detect GitHub PATs and NVIDIA API Keys
         patterns = [
             r'ghp_[a-zA-Z0-9]{36}',
             r'nvapi-[a-zA-Z0-9-]{64}'
@@ -67,12 +69,8 @@ class AgentRunner:
             if re.search(pattern, text):
                 raise SecurityException("CRITICAL: LLM attempted to leak a potential API secret. Execution blocked.")
 
-class SecurityException(Exception):
-    pass
-
     def _clean_json_response(self, text: str) -> str:
         """Removes markdown code block wrappers if present."""
-        # Remove ```json ... ``` or ``` ... ```
         text = re.sub(r'```json\s*', '', text)
         text = re.sub(r'```\s*', '', text)
         return text.strip()
@@ -97,6 +95,26 @@ class SecurityException(Exception):
         response.raise_for_status()
         return response.json()['candidates'][0]['content']['parts'][0]['text']
 
+    def call_gemma(self, payload: str, model="gemma-4-it") -> str:
+        """Invokes the Gemma 4 Open-Weights model via Google AI Studio."""
+        api_key = os.getenv("GEMINI_API_KEY") # Google AI Studio uses the same API key
+        if not api_key:
+            raise ValueError("GEMINI_API_KEY (for Google AI Studio) not found in environment.")
+
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+        headers = {"Content-Type": "application/json"}
+        data = {
+            "contents": [{
+                "parts": [{
+                    "text": f"SYSTEM INSTRUCTIONS:\n{self.system_prompt}\n\nUSER PAYLOAD:\n{payload}"
+                }]
+            }]
+        }
+        
+        response = requests.post(url, headers=headers, json=data)
+        response.raise_for_status()
+        raw_content = response.json()['candidates'][0]['content']['parts'][0]['text']
+        return self._clean_json_response(raw_content)
+
 if __name__ == "__main__":
-    # Example usage for testing
     print("Agent Runner initialized. Ready to execute .md agents via API.")
