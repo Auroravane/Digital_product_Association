@@ -1,0 +1,46 @@
+name: Product Splitter (CDO ➔ CPO ➔ Workers)
+
+on:
+  push:
+    paths:
+      - 'specs/directives/latest_directive.json'
+
+jobs:
+  plan_and_execute:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: pip install requests jsonschema
+
+      - name: Invoke CPO Managing Agent
+        env:
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          echo "Generating Technical PRD..."
+          python scripts/connection_agents/cpo_planner.py
+
+      - name: Validate PRD Schema
+        run: |
+          python scripts/connection_agents/validate_schema.py --schema specs/schemas/PRD_Schema.json --target specs/directives/latest_prd.json
+
+      - name: Auto-Commit PRD
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "autobot(cpo): Generated technical PRD for Worker Agents"
+          file_pattern: 'specs/directives/latest_prd.json'
+
+      - name: Trigger Worker Splitter
+        if: success()
+        run: |
+          echo "Triggering Worker Agents based on PRD assignments..."
+          # This triggers the parallel execution of the Worker Agents
+          python scripts/connection_agents/worker_splitter.py
