@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-05-06T10:15:00Z",
+  "source": "Trend_Scraper_Alpha",
+  "intel_type": "MARKET_SHIFT",
+  "payload": {
+    "summary": "Competitor 'DesignFlow AI' just launched a new subscription tier at $49.99/mo. User sentiment on Reddit and X shows significant backlash regarding the high price point and the lack of a 'pay-as-you-go' model.",
+    "keywords": ["DesignFlow", "Pricing Backlash", "Affordability", "Subscription Fatigue"],
+    "target_demographics": ["Freelance Designers", "Small Agencies"],
+    "urgency": 8
+  }
+}
