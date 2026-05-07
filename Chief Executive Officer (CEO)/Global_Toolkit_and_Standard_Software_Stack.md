@@ -15,7 +15,7 @@ This document defines the official, company-wide software and service standards.
 | **Hosting** | **Fly.io** / **Oracle Cloud** | Use for scalable, non-sleeping production apps. |
 | **Infrastructure (IaC)** | **Terraform** / **Pulumi** | Open-source CLI management. |
 | **Containerization** | **Podman** / **Docker CLI** | Avoid Docker Desktop license fees at scale. |
-| **AI Inference (Senior Agents)** | **NVIDIA NIM API** | Free-tier endpoint. Confirmed models: `moonshotai/kimi-k2.6`, `meta/llama-3.3-70b-instruct`, `qwen/qwen3-next-80b-a3b-instruct`, `deepseek-ai/deepseek-v4-flash`. |
+| **AI Inference (Senior Agents)** | **NVIDIA NIM API** | Free-tier endpoint. Confirmed models: `meta/llama-3.3-70b-instruct`, `qwen/qwen3-next-80b-a3b-instruct`, `deepseek-ai/deepseek-v4-flash`. |
 | **AI Inference (Parsing/Mini)** | **Google Gemini API** | Free-tier endpoint. Confirmed model: `gemini-2.5-flash-lite` (500 RPD). |
 | **AI/ML Orchestration** | **LangChain** / **Ollama** | Run LLMs locally to avoid API usage caps. |
 | **Voice Synthesis** | **Coqui TTS** | Open-source, local high-quality voice synthesis. |
