@@ -55,6 +55,8 @@ DO NOT include any conversational text. ONLY return the raw JSON object.
         
     except Exception as e:
         print(f"CPO Pipeline Failed: {str(e)}")
+        import sys
+        sys.exit(1)
 
 if __name__ == "__main__":
     run_cpo_pipeline()
