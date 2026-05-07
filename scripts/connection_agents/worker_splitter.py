@@ -68,10 +68,18 @@ def run_worker_splitter():
             
         print(f"[{worker_name}] Loaded identity from: {role_path}")
         
-        # Prepare the execution payload
+        # Prepare the execution payload with PRODUCTION MANDATE
         worker_payload = f"""
-TASK DISPATCH FOR: {worker_name}
+### PRODUCTION MANDATE — READ CAREFULLY ###
+YOU ARE IN INDUSTRIAL PRODUCTION MODE. 
+1. DO NOT PROVIDE INTRODUCTIONS, EXPLANATIONS, OR CONVERSATIONAL FILLER.
+2. DO NOT TALK ABOUT THE WORK.
+3. ONLY OUTPUT THE FINAL, RAW CONTENT OF THE PRODUCT ASSET.
+4. IF THE TASK IS CODE, ONLY OUTPUT THE CODE BLOCKS.
+5. IF THE TASK IS CONTENT, ONLY OUTPUT THE FINAL COPY.
+
 PRODUCT NAME: {prd_data.get('product_name', 'Unknown')}
+TASK DISPATCH FOR: {worker_name}
 
 YOUR SPECIFIC INSTRUCTIONS:
 {task_details.get('task_description', 'No description provided')}
@@ -92,11 +100,29 @@ REQUIRED OUTPUT FORMAT:
             # but wait, we changed the default to Kimi! We should specify llama here.
             output_content = runner.call_nvidia_nim(worker_payload, model="meta/llama-3.3-70b-instruct")
             
-            output_file = os.path.join(BUILD_DIR, f"{worker_name}_output.md")
+            # --- SMART EXTRACTION LOGIC ---
+            file_ext = ".md"
+            final_output = output_content
+            
+            # If the AI wrapped code in blocks, extract it and change extension
+            if "```python" in output_content:
+                final_output = output_content.split("```python")[1].split("```")[0].strip()
+                file_ext = ".py"
+            elif "```html" in output_content:
+                final_output = output_content.split("```html")[1].split("```")[0].strip()
+                file_ext = ".html"
+            elif "```css" in output_content:
+                final_output = output_content.split("```css")[1].split("```")[0].strip()
+                file_ext = ".css"
+            elif "```json" in output_content:
+                final_output = output_content.split("```json")[1].split("```")[0].strip()
+                file_ext = ".json"
+            
+            output_file = os.path.join(BUILD_DIR, f"{worker_name}_product{file_ext}")
             with open(output_file, 'w', encoding='utf-8') as f:
-                f.write(output_content)
+                f.write(final_output)
                 
-            print(f"[{worker_name}] Success! Output saved to {output_file}")
+            print(f"[{worker_name}] Success! PRODUCT ASSET saved to {output_file}")
             
         except Exception as e:
             print(f"[{worker_name}] Execution Failed: {str(e)}")
