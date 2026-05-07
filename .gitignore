@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+.env
+
+# Project Specific
+build/
+specs/directives/latest_directive.json
+specs/directives/latest_prd.json
+intel_drops/*.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
