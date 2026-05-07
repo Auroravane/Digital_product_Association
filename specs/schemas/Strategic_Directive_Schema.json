@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Strategic_Directive_Schema",
+  "description": "The mandatory JSON payload structure the CDO Managing Agent must output to route tasks to other C-Suite agents.",
+  "type": "object",
+  "properties": {
+    "priority_level": {
+      "type": "string",
+      "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+    },
+    "strategic_objective": {
+      "type": "string",
+      "description": "A single sentence defining the ultimate outcome required."
+    },
+    "kpi_target": {
+      "type": "string",
+      "description": "The metric by which success will be measured."
+    },
+    "routing": {
+      "type": "object",
+      "description": "Which Managing Agents are required to execute this pivot.",
+      "properties": {
+        "CPO": { "type": "string" },
+        "CMO": { "type": "string" },
+        "CTO": { "type": "string" },
+        "COO": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["priority_level", "strategic_objective", "kpi_target", "routing"]
+}
